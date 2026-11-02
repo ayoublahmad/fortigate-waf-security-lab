@@ -1,29 +1,29 @@
 
-## Architecture logique
+## Logical Architecture
 
 ```mermaid
 flowchart TB
     Kali["Kali Linux<br/>192.168.100.10"]
 
-    subgraph WAN["ZONE WAN — 192.168.100.0/24"]
+    subgraph WAN["WAN ZONE — 192.168.100.0/24"]
         K["Kali Linux<br/>192.168.100.10"]
         F1["FortiGate port1<br/>192.168.100.254"]
     end
 
-    subgraph DMZ["ZONE DMZ — 10.10.10.0/24"]
+    subgraph DMZ["DMZ ZONE — 10.10.10.0/24"]
         F2["FortiGate port2<br/>10.10.10.1"]
         WAF["Ubuntu Server<br/>Nginx + ModSecurity<br/>10.10.10.10"]
     end
 
-    subgraph APP["ZONE APP — 10.10.20.0/24"]
+    subgraph APP["APP ZONE — 10.10.20.0/24"]
         F3["FortiGate port3<br/>10.10.20.1"]
         DVWA["Ubuntu Server / Docker<br/>DVWA + MariaDB<br/>10.10.20.10"]
     end
 
-    subgraph MGMT["ZONE MGMT — 10.10.30.0/24"]
+    subgraph MGMT["MGMT ZONE — 10.10.30.0/24"]
         F4["FortiGate port4<br/>10.10.30.1"]
         WAZUH["Wazuh<br/>10.10.30.10"]
-        ADMIN["Poste d'administration<br/>10.10.30.100"]
+        ADMIN["Admin Workstation<br/>10.10.30.100"]
     end
 
     K --- F1
@@ -35,37 +35,36 @@ flowchart TB
     F4 --- WAZUH
     F4 --- ADMIN
 
-    WAF -->|"Requêtes applicatives"| DVWA
+    WAF -->|"Application Requests"| DVWA
     F1 -.->|"Logs"| WAZUH
     WAF -.->|"Logs"| WAZUH
 ```
 
-## Plan d’adressage
+## Addressing Plan
 
-| Zone | Réseau | Équipement | Interface | Adresse IP |
+| Zone | Network | Device | Interface | IP Address |
 |---|---|---|---|---|
 | WAN | 192.168.100.0/24 | Kali Linux | NIC 1 | 192.168.100.10 |
 | WAN | 192.168.100.0/24 | FortiGate-VM | port1 | 192.168.100.254 |
 | DMZ | 10.10.10.0/24 | FortiGate-VM | port2 | 10.10.10.1 |
-| DMZ | 10.10.10.0/24 | Serveur WAF | NIC 1 | 10.10.10.10 |
+| DMZ | 10.10.10.0/24 | WAF Server | NIC 1 | 10.10.10.10 |
 | APP | 10.10.20.0/24 | FortiGate-VM | port3 | 10.10.20.1 |
-| APP | 10.10.20.0/24 | Serveur DVWA + MariaDB | NIC 1 | 10.10.20.10 |
+| APP | 10.10.20.0/24 | DVWA + MariaDB Server | NIC 1 | 10.10.20.10 |
 | MGMT | 10.10.30.0/24 | FortiGate-VM | port4 | 10.10.30.1 |
 | MGMT | 10.10.30.0/24 | Wazuh | NIC 1 | 10.10.30.10 |
-| MGMT | 10.10.30.0/24 | Poste d'administration | NIC 1 | 10.10.30.100 |
+| MGMT | 10.10.30.0/24 | Admin Workstation | NIC 1 | 10.10.30.100 |
 
-## Principes de segmentation
+## Segmentation Principles
 
-- Chaque zone utilise un réseau virtuel isolé distinct.
-- Les quatre interfaces du FortiGate relient les zones et assurent le routage inter-zone.
-- Le serveur DVWA est placé dans la zone APP et ne doit pas être directement exposé au WAN.
-- Le serveur WAF est placé dans la DMZ et sert de frontal à DVWA.
-- Wazuh et le poste d'administration sont placés dans la zone MGMT.
-- Les sous-réseaux ne se chevauchent pas.
+- Each zone uses a separate isolated virtual network.
+- The four FortiGate interfaces connect the zones and provide inter-zone routing.
+- The DVWA server is located in the APP zone and must not be directly exposed to the WAN.
+- The WAF server is located in the DMZ and acts as the frontend for DVWA.
+- Wazuh and the admin workstation are located in the MGMT zone.
+- The subnets do not overlap.
 
-## Points à confirmer avant validation
+## Items to Confirm Before Validation
 
-- Le nom exact des réseaux virtuels dans VMware ou VirtualBox.
-- Le mode d'adressage statique des interfaces des VM.
-- La passerelle par défaut de Kali et des serveurs internes : l'adresse FortiGate de leur zone est proposée comme passerelle.
-
+- The exact names of the virtual networks in VMware or VirtualBox.
+- The static addressing method for the VM interfaces.
+- The default gateway for Kali and the internal servers: the FortiGate address for their zone is proposed as the gateway.
