@@ -1,0 +1,35 @@
+# Operating system files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor and IDE files
+.vscode/
+.idea/
+*.swp
+
+# Secrets and local environment files
+.env
+.env.*
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+tmp/
+temp/
+
+# Virtual machine and generated artifacts
+*.iso
+*.vmdk
+*.ova
+*.ovf
+*.vmem
+*.lck/
+
+# Keep evidence files intentional and reviewable
+evidence/**/working/
